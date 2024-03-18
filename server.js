@@ -7,7 +7,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 var mongoose = require('mongoose');
-const Contact = require('./server/models/contact');
 
 // import the routing file to handle the default (index) route
 var index = require('./server/routes/app');
@@ -55,30 +54,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Set up the static file route for express to use as the
-// root directory for your web site
-app.use(express.static(path.join(__dirname, 'dist/cms/browser')));
-
 // Set up the API route
 // tell express to map the default route ('/') to the index route
-app.use('/', index);
-app.use('/api/', index);
 app.use('/api/messages', messageRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/documents', documentRoutes);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/cms/browser/index.html'));
+// Optionally, you might still want to handle unknown API routes or errors:
+app.use((req, res, next) => {
+    res.status(404).json({ message: "Resource not found" });
 });
 
 // Define the port address and tell express to use this port
 const port = process.env.PORT || '3000';
-
 app.set('port', port);
 
 // Create HTTP server.
 const server = http.createServer(app);
-
 // Tell the server to start listening on the provided port
 server.listen(port, function() {
   console.log('API running on localhost: ' + port)
